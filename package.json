@@ -1,0 +1,33 @@
+{
+  "name": "picker",
+  "version": "0.0.1",
+  "description": "picker",
+  "keywords": [],
+  "homepage": "",
+  "author": "unclary <wcl58981298@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "bugs": {
+    "url": ""
+  },
+  "licenses": "MIT",
+  "spm": {
+    "main": "index.js",
+    "dependencies": {
+    },
+    "devDependencies": {
+      "expect.js": "0.3.1",
+      "picker-core": "1.2.0",
+      "eventor": "0.0.3"
+    }
+  },
+  "devDependencies": {
+    "spm": "3"
+  },
+  "scripts": {
+    "test": "spm test",
+    "build": "spm build"
+  }
+}

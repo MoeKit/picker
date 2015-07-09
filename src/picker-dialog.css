@@ -1,0 +1,47 @@
+.picker-dialog {
+	position: fixed;
+	left: 0;
+	bottom: 0;
+	width: 100%;
+	height: 254px;
+	background: #eee;
+	z-index: 101;
+	-webkit-transition-property: -webkit-transform;
+	transition-property: transform;
+	-webkit-transform: translate3d(0, 100%, 0);
+	transform: translate3d(0, 100%, 0);
+	-webkit-transition-duration: 300ms;
+	transition-duration: 300ms;
+}
+.picker-mask {
+	display: block;
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: rgba(0, 0, 0, 0.5);
+	z-index: 1;
+	opacity: 0;
+	-webkit-tap-highlight-color: rgba(0,0,0,0);
+	-webkit-transition: all 0.1s;
+	transition: all 0.1s;
+	z-index: -1;
+}
+.picker-mask.show {
+	display: block;
+	opacity: 1;
+	z-index: 100;
+}
+.modal-in, .modal-out {
+	-webkit-transition-duration: 300ms;
+	transition-duration: 300ms;
+}
+.modal-in {
+	-webkit-transform: translate3d(0, 0, 0);
+	transform: translate3d(0, 0, 0);
+}
+.modal-out {
+	-webkit-transform: translate3d(0, 100%, 0);
+	transform: translate3d(0, 100%, 0);
+}

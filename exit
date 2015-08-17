@@ -1,0 +1,249 @@
+^5f9bd93 (unclary           2015-07-09 15:34:07 +0800   1) 'use strict';
+^5f9bd93 (unclary           2015-07-09 15:34:07 +0800   2) var Eventor = require('eventor');
+^5f9bd93 (unclary           2015-07-09 15:34:07 +0800   3) var PickerDialog = require('./src/picker-dialog.js');
+^5f9bd93 (unclary           2015-07-09 15:34:07 +0800   4) var PickerCore = require('picker-core');
+^5f9bd93 (unclary           2015-07-09 15:34:07 +0800   5) var SimulateClick = require('./src/simulate-click.js');
+^5f9bd93 (unclary           2015-07-09 15:34:07 +0800   6) require('./src/picker.css');
+^5f9bd93 (unclary           2015-07-09 15:34:07 +0800   7) var Picker = function(option) {
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800   8)     var _this = this;
+^5f9bd93 (unclary           2015-07-09 15:34:07 +0800   9)     this.dialogConf = {};
+^5f9bd93 (unclary           2015-07-09 15:34:07 +0800  10)     if (isType(option, 'Object')) {
+^5f9bd93 (unclary           2015-07-09 15:34:07 +0800  11)         this.dialogConf = option.dialogConf || {};
+^5f9bd93 (unclary           2015-07-09 15:34:07 +0800  12)         this.cols = option.cols || [];
+^5f9bd93 (unclary           2015-07-09 15:34:07 +0800  13)         this.input = document.querySelector(option.input);
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800  14)         this.toolbarTemplate = option.toolbarTemplate || ('<div class="picker-toolbar">' +
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800  15)             '<a href="javascript:void(0);" class="picker-toolbar-right">Done</a>' +
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800  16)             '</div>');
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800  17) 
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800  18)         this.formatValue = option.formatValue || function(picker, values) {
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800  19)             return values.join(" ");
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800  20)         };
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800  21)         this.onOpen = option.onOpen;
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800  22)         this.onClose = option.onClose;
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800  23)         this.onChange = option.onChange;
+^5f9bd93 (unclary           2015-07-09 15:34:07 +0800  24)         option = null;
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800  25)     };
+^5f9bd93 (unclary           2015-07-09 15:34:07 +0800  26)     this.picker = {};
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800  27)     if (this.isError()) return false;
+^5f9bd93 (unclary           2015-07-09 15:34:07 +0800  28)     this.init();
+^5f9bd93 (unclary           2015-07-09 15:34:07 +0800  29)     return this;
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800  30) };
+^5f9bd93 (unclary           2015-07-09 15:34:07 +0800  31) Eventor.mixTo(Picker);
+^5f9bd93 (unclary           2015-07-09 15:34:07 +0800  32) SimulateClick(Picker);
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800  33) Picker.prototype.isError = function() {
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800  34)     if (!this.input) {
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800  35)         console.error('input对应的dom对象不存在');
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800  36)         return true;
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800  37)     }
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800  38)     return false;
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800  39) };
+^5f9bd93 (unclary           2015-07-09 15:34:07 +0800  40) Picker.prototype.init = function() {
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800  41)     this.input.setAttribute('readonly', 'readonly');
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800  42)     this.input.style.webkitTapHighlightColor = 'rgba(0,0,0,0)';
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800  43)     this.hackInputFocus();
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800  44)     this.initDialog();
+^5f9bd93 (unclary           2015-07-09 15:34:07 +0800  45)     this.initPicker();
+^5f9bd93 (unclary           2015-07-09 15:34:07 +0800  46)     this.initPickerCore();
+^5f9bd93 (unclary           2015-07-09 15:34:07 +0800  47)     this._InitCssPickerCore();
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800  48)     this._bingEventSetValues();
+^5f9bd93 (unclary           2015-07-09 15:34:07 +0800  49)     this._bindEventToolbar();
+^5f9bd93 (unclary           2015-07-09 15:34:07 +0800  50)     this._bindEventInput(this.input);
+^5f9bd93 (unclary           2015-07-09 15:34:07 +0800  51)     return this;
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800  52) };
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800  53) Picker.prototype.destroy = function() {
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800  54)     for (var i in this) {
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800  55)         delete this[i];
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800  56)     }
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800  57)     for (var i in this.__proto__) {
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800  58)         delete this.__proto__[i];
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800  59)     }
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800  60) };
+^5f9bd93 (unclary           2015-07-09 15:34:07 +0800  61) Picker.prototype.initPicker = function() {
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800  62)     console.log(this.toolbarTemplate);
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800  63)     this.dialog.container.innerHTML = this.toolbarTemplate + '<div class="picker-cols"></div>';
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800  64)     // '<div class="picker-cols"></div>' 
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800  65)     this.picker.toolbar = this.dialog.container.querySelector('.picker-toolbar');
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800  66)     if (!!this.picker.toolbar) {
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800  67)         this.picker.toolbarLeft = this.picker.toolbar.querySelector('.picker-toolbar-left');
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800  68)         this.picker.toolbarRight = this.picker.toolbar.querySelector('.picker-toolbar-right');
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800  69)     }
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800  70)     this.picker.container = this.dialog.container;
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800  71)     this.picker.wrap = this.dialog.container.querySelector('.picker-cols');
+^5f9bd93 (unclary           2015-07-09 15:34:07 +0800  72)     return this;
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800  73) };
+^5f9bd93 (unclary           2015-07-09 15:34:07 +0800  74) Picker.prototype.initDialog = function() {
+^5f9bd93 (unclary           2015-07-09 15:34:07 +0800  75)     this.dialog = new PickerDialog(this.dialogConf);
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800  76)     //this.picker.wrap = this.dialog.container;
+^5f9bd93 (unclary           2015-07-09 15:34:07 +0800  77)     return this;
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800  78) };
+^5f9bd93 (unclary           2015-07-09 15:34:07 +0800  79) Picker.prototype.hide = function() {
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800  80)     return this.dialog.hide(), this.onClose && this.onClose(this.picker), this;
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800  81) };
+^5f9bd93 (unclary           2015-07-09 15:34:07 +0800  82) Picker.prototype.show = function() {
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800  83)     this.input.innerHTML = this._getValues();
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800  84)     return this.dialog.show(), this.onOpen && this.onOpen(this.picker), this;
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800  85) };
+^5f9bd93 (unclary           2015-07-09 15:34:07 +0800  86) Picker.prototype.initPickerCore = function() {
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800  87)     var _this = this;
+^5f9bd93 (unclary           2015-07-09 15:34:07 +0800  88)     this.picker.cols = [];
+^5f9bd93 (unclary           2015-07-09 15:34:07 +0800  89)     var _cols = this.cols;
+^5f9bd93 (unclary           2015-07-09 15:34:07 +0800  90)     for (var i = 0; i < _cols.length; i++) {
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800  91)         if( _cols[i].divider === true ){
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800  92) 
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800  93)         } else {
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800  94)             var _temp = new PickerCore({
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800  95)                 container: this.picker.wrap,
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800  96)                 data: _cols[i].values || [],
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800  97)                 itemHeight: 30,
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800  98)                 selectedCallback: (function() {
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800  99)                     var _i = i;
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 100)                     return function(_new, _old) {
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 101)                         if (!!_this.onChange) _this.onChange(_this.picker, _new, _old);
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 102)                         else if (!!_cols[_i].onChange) _cols[_i].onChange(_this.picker, _new, _old);
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 103)                         _this.input.innerHTML = _this._getValues();
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 104)                     }
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 105)                 }())
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 106)             });
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 107)             _temp.values = _cols[i].values;
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 108)             _temp.replaceValues = _temp.render;
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 109)             this.picker.cols.push(_temp);
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 110)         }
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 111)         
+^5f9bd93 (unclary           2015-07-09 15:34:07 +0800 112)     }
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 113)     this.picker.component = this.dialog.container.querySelectorAll('.basescroller-component');
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 114)     this.picker.scroller = this.dialog.container.querySelectorAll('.basescroller-scroller');
+^5f9bd93 (unclary           2015-07-09 15:34:07 +0800 115)     return this;
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 116) };
+^5f9bd93 (unclary           2015-07-09 15:34:07 +0800 117) Picker.prototype._InitCssPickerCore = function() {
+^5f9bd93 (unclary           2015-07-09 15:34:07 +0800 118)     var _cols = this.cols;
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 119)     var _component = this.picker.component;
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 120)     var _scroller = this.picker.scroller;
+^5f9bd93 (unclary           2015-07-09 15:34:07 +0800 121)     var randomCount = _cols.length,
+^5f9bd93 (unclary           2015-07-09 15:34:07 +0800 122)         percent = 100;
+^5f9bd93 (unclary           2015-07-09 15:34:07 +0800 123)     // 算出需要设置均宽的选择项及其均宽的百分比
+^5f9bd93 (unclary           2015-07-09 15:34:07 +0800 124)     for (var i = 0; i < _cols.length; i++) {
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 125)         if( _cols[i].divider === true ){
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 126)             randomCount--;
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 127)         }
+^5f9bd93 (unclary           2015-07-09 15:34:07 +0800 128)         if (!isType(_cols[i].width, 'Number')) {
+^5f9bd93 (unclary           2015-07-09 15:34:07 +0800 129)             delete _cols[i].width;
+^5f9bd93 (unclary           2015-07-09 15:34:07 +0800 130)         } else {
+^5f9bd93 (unclary           2015-07-09 15:34:07 +0800 131)             randomCount--;
+^5f9bd93 (unclary           2015-07-09 15:34:07 +0800 132)             percent -= _cols[i].width;
+^5f9bd93 (unclary           2015-07-09 15:34:07 +0800 133)         }
+^5f9bd93 (unclary           2015-07-09 15:34:07 +0800 134)     }
+^5f9bd93 (unclary           2015-07-09 15:34:07 +0800 135)     // 设置选择项的width、text-align
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 136)     for (var i = 0; i < _component.length; i++) {
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 137)         _component[i].style.width = !!_cols[i].width ? _cols[i].width + '%' : percent / randomCount + '%';
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 138)         _component[i].style.textAlign = _cols[i].textAlign || 'center';
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 139)     }
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 140)     // 格式化选项宽度
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 141)     var _componentWidth = 0;
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 142)     var _scrollerWidth = 0;
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 143)     var _padding = 0;
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 144)     for (var i = 0; i < _scroller.length; i++) {
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 145)         _componentWidth = _component[i].offsetWidth;
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 146)         _scrollerWidth = _scroller[i].offsetWidth;
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 147)         if (_componentWidth >= _scrollerWidth + 40) {
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 148)             _scroller[i].style.width = (_scrollerWidth + 20) + "px";
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 149)             _scroller[i].style.padding = "0 " + ((_componentWidth - _scrollerWidth - 20) / 2 || 0) + "px";
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 150)         } else if (_componentWidth >= _scrollerWidth + 20) {
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 151)             _scroller[i].style.padding = "0 " + ((_componentWidth - _scrollerWidth) / 2 || 0) + "px";
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 152)         }
+^5f9bd93 (unclary           2015-07-09 15:34:07 +0800 153)     }
+^5f9bd93 (unclary           2015-07-09 15:34:07 +0800 154)     return this;
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 155) };
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 156) Picker.prototype._bingEventSetValues = function() {
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 157)     // 设置新值给当前的选项列
+^5f9bd93 (unclary           2015-07-09 15:34:07 +0800 158)     var _this = this;
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 159)     this.picker.setValue = function(values) {
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 160)         if( Object.prototype.toString.call(values) == "[object Array]" ){
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 161)             for (var i = 0; i < _this.picker.cols.length; i++) {
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 162)                 if (!!values[i]) {
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 163)                     _this.picker.cols[i].select(values[i]);
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 164)                 }
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 165)             }
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 166)         } else console.error("picker.setValue的参数必须是数组");    
+^5f9bd93 (unclary           2015-07-09 15:34:07 +0800 167)     }
+^5f9bd93 (unclary           2015-07-09 15:34:07 +0800 168) }
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 169) Picker.prototype._bindEventToolbar = function() {
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 170)     // 设置左右toolbar按钮的事件
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 171)     var _this = this;
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 172)     if (this.picker.toolbarLeft) {
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 173)         this.picker.toolbarLeft.click = function(e) {
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 174)             _this.emit('toolbarLeft', e);
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 175)         };
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 176)         this.picker.toolbarLeft.tap(this.picker.toolbarLeft.click);
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 177)     };
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 178)     if (this.picker.toolbarRight) {
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 179)         _this.on('toolbarRight', function(e) {
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 180)             _this.hide();
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 181)         });
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 182)         this.picker.toolbarRight.click = function(e) {
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 183)             _this.emit('toolbarRight', e);
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 184)         };
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 185)         this.picker.toolbarRight.tap(this.picker.toolbarRight.click);
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 186)     };
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 187)     // this.setClick(this.picker.toolbarLeft, this.picker.toolbarLeft.click);
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 188)     // this.setClick(this.picker.toolbarRight, this.picker.toolbarRight.click);
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 189) };
+^5f9bd93 (unclary           2015-07-09 15:34:07 +0800 190) Picker.prototype._bindEventInput = function(input) {
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 191)     // 设置input被触发的事件
+^5f9bd93 (unclary           2015-07-09 15:34:07 +0800 192)     var _this = this;
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 193)     input.tap(function() {
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 194)         log('input click');
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 195)         _this.show();
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 196)         // 如果input被picker遮挡到，则滚动input至可视区域
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 197)         (function() {
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 198)             var clientHeight = document.documentElement.clientHeight; //  浏览器高度
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 199)             var scrollTop = document.body.scrollTop; // 滚动高度
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 200)             var pickerHeight = _this.dialog.container.offsetHeight; // picker高度
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 201)             var inputTop = _this.input.offsetTop; // input相对body高度
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 202)             var inputHeight = _this.input.offsetHeight; // input高度
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 203)             if (inputTop - scrollTop + inputHeight > clientHeight - pickerHeight || inputTop - scrollTop + inputHeight < inputHeight) {
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 204)                 _this.scrollAnimate(inputTop - pickerHeight - inputHeight + (clientHeight - pickerHeight) * 0.5, 400)
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 205)             }
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 206)         }());
+^5f9bd93 (unclary           2015-07-09 15:34:07 +0800 207)     });
+^5f9bd93 (unclary           2015-07-09 15:34:07 +0800 208)     return this;
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 209) };
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 210) Picker.prototype._getValues = function() {
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 211)     var _temp = [];
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 212)     for (var i = 0; i < this.picker.cols.length; i++) {
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 213)         _temp.push(this.picker.cols[i].getValue())
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 214)     };
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 215)     return this.formatValue(this.picker, _temp);
+^5f9bd93 (unclary           2015-07-09 15:34:07 +0800 216) }
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 217)     // 兼容安卓微信，在input上面增加一层遮罩层，安卓微信没法禁用不可编辑
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 218) Picker.prototype.hackInputFocus = function() {
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 219)     var _inputMask = document.createElement('div');
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 220)     var _input = this.input;
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 221)     var _parent = _input.parentNode;
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 222) 
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 223)     _inputMask.style.width = (_input.offsetWidth + _input.clientLeft * 2) + 'px';
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 224)     _inputMask.style.height = (_input.offsetHeight + _input.clientTop * 2) + 'px';
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 225)     _inputMask.style.position = 'absolute';
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 226)     _inputMask.style.left = _input.offsetLeft;
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 227)     _inputMask.style.top = _input.offsetTop;
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 228)     _inputMask.setAttribute('id', _input.getAttribute('id') + 'Mask');
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 229)     _parent.insertBefore(_inputMask, _input);
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 230)     this.input = document.getElementById(_input.getAttribute('id') + 'Mask');
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 231)     return this;
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 232) };
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 233) // input输入框如果不在可视区域内，将其滑动到可视区域
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 234) Picker.prototype.scrollAnimate = function(position, timestamp) {
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 235)     var needs = (document.body.scrollTop - position) / timestamp * 25;
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 236)     var interval = setInterval(function() {
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 237)         if (Math.abs(document.body.scrollTop - position) < Math.abs(needs)) {
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 238)             clearInterval(interval);
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 239)         }
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 240)         document.body.scrollTop = document.body.scrollTop - needs;
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 241)     }, 8);
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 242)     return this;
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 243) };
+^5f9bd93 (unclary           2015-07-09 15:34:07 +0800 244) 
+^5f9bd93 (unclary           2015-07-09 15:34:07 +0800 245) 
+^5f9bd93 (unclary           2015-07-09 15:34:07 +0800 246) function isType(object, type) {
+^5f9bd93 (unclary           2015-07-09 15:34:07 +0800 247)     return Object.prototype.toString.call(object) === '[object ' + type + ']'
+00000000 (Not Committed Yet 2015-08-17 09:37:35 +0800 248) };
+^5f9bd93 (unclary           2015-07-09 15:34:07 +0800 249) module.exports = Picker;

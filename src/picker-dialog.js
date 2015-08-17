@@ -21,8 +21,8 @@ var PickerDialog = function(option){
 	document.body.appendChild(div);
 	this.mask = document.querySelectorAll(".picker-mask");
 	this.mask = this.mask[ this.mask.length-1 ];
-	this.wrap = document.querySelectorAll(".picker-dialog");
-	this.wrap = this.wrap[ this.wrap.length-1 ];
+	this.container = document.querySelectorAll(".picker-dialog");
+	this.container = this.container[ this.container.length-1 ];
 	this._bindEvents();
 	return this;
 }
@@ -43,14 +43,14 @@ PickerDialog.prototype.show = function(){
 	var _this = this;
 	log('show');
 	_this.mask.classList.add("show");
-	_this.wrap.classList.add("modal-in");
+	_this.container.classList.add("modal-in");
 	return this;
 }
 PickerDialog.prototype.hide = function(){
 	var _this = this;
 	log('hide');
 	_this.mask.classList.remove("show");
-	_this.wrap.classList.remove("modal-in");
+	_this.container.classList.remove("modal-in");
 	return this;
 }
 function isObject(object) {

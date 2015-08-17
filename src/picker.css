@@ -11,7 +11,6 @@
   position: absolute;
   left: 0;
   top: 0;
-  width: 100%;
   z-index: 1;
 }
 
@@ -62,7 +61,8 @@
   border-bottom: 1px solid #ADADAD;
 }
 .picker-toolbar-left,
-.picker-toolbar-right {
+.picker-toolbar-right
+ {
   -webkit-tap-highlight-color: rgba(0,0,0,0);
   height: 100%;
   padding: 0 15px;

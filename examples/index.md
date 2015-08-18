@@ -1,7 +1,10 @@
 # Demo
 
 ---
-
+<style> 
+    input { width: 200px; } 
+    #JS_test_mitao_box { width: 280px; margin: 0 auto; }
+</style>
 <script type="text/javascript" src="http://assist.work.bzdev.net/common/js/logger.js"></script>
 
 ## Normal usage
@@ -16,6 +19,9 @@ dependent
 toolbar
 <input type="text" id="JS_test_timed" placeholder="">
 timed
+<input type="text" id="JS_test_mitao" placeholder="">
+mitao
+<div id="JS_test_mitao_box" style=" width: 240px; margin: 0 auto;"></div>
 <input type="text" id="JS_test">
 test
 <input type="date" id="JS_test1">
@@ -117,7 +123,7 @@ pickerDependent = new Picker({
     },
     cols: [
         {
-        	width: 50,
+        	width: 110,
             textAlign: 'right',
             values: ['Japanese', 'German', 'American'],
             "onChange": function(picker, country) {
@@ -127,9 +133,9 @@ pickerDependent = new Picker({
             }
         },
         {
-        	textAlign: 'right',
+        	textAlign: 'left',
             values: carVendors.Japanese,
-            width: 50
+            width: 120
         },
     ]
 });
@@ -173,11 +179,13 @@ tookbarq = new Picker({
 
 timed = new Picker({
 	input: "#JS_test_timed",
+    formatValue: function(picker, values, displayValues){
+        return displayValues?displayValues[0]:values[0] + ' ' + values[1] + ', ' + values[2] + ' ' + values[3] + ':' + values[4];
+    },
 	cols: [
 		// Months
         {
-            values: ('0 1 2 3 4 5 6 7 8 9 10 11').split(' '),
-            displayValues: ('January February March April May June July August September October November December').split(' '),
+            values: ('January February March April May June July August September October November December').split(' '),
             textAlign: 'left'
         },
         // Days
@@ -195,7 +203,7 @@ timed = new Picker({
         // Space divider
         {
             divider: true,
-            content: '  '
+            content: '&nbsp;&nbsp;&nbsp;&nbsp;'
         },
         // Hours
         {
@@ -204,6 +212,7 @@ timed = new Picker({
                 for (var i = 0; i <= 23; i++) { arr.push(i); }
                 return arr;
             })(),
+            textAlign: "right"
         },
         // Divider
         {
@@ -220,4 +229,35 @@ timed = new Picker({
         }
 	]
 });
+
+pickerMitao = new Picker({
+    input: '#JS_test_mitao',
+    container: "#JS_test_mitao_box",
+    "itemsNumber": 3,
+    "itemHeight": 40,
+    cols: [
+        {
+            values: (function () {
+                var arr = [];
+                for (var i = 1950; i <= 2030; i++) { arr.push(i+"年"); }
+                return arr;
+            })()
+        },
+        {
+            values: "1月 2月 3月 4月 5月 6月 7月 8月 9月 10月 11月 12月".split(" "),
+            onchange: function(){
+                
+            }
+        },
+        {
+            values: (function(){
+                var arr = [];
+                for(var i=1; i<=31; i++){ arr.push(i+"日"); }
+                return arr;
+            }())
+        },
+    ]
+});
+
+
 ````

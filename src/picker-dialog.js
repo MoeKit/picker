@@ -31,24 +31,20 @@ SimulateClick(PickerDialog);
 PickerDialog.prototype._bindEvents = function(){
 	var _this = this;
 	function triggerClick(e){
-		log("a mask click");
 		_this.hide();
 		_this.emit('close');
 	}
-	log("listener");
 	this.setClick(this.mask, triggerClick);
 	return this;
 }
 PickerDialog.prototype.show = function(){
 	var _this = this;
-	log('show');
 	_this.mask.classList.add("show");
 	_this.container.classList.add("modal-in");
 	return this;
 }
 PickerDialog.prototype.hide = function(){
 	var _this = this;
-	log('hide');
 	_this.mask.classList.remove("show");
 	_this.container.classList.remove("modal-in");
 	return this;

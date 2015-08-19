@@ -17,9 +17,8 @@ var Picker = function(option) {
     if (isType(option, 'Object')) {
         this.dialogConf = option.dialogConf || {};
         this.e = option.input;
-        this.itemsNumber = option.itemsNumber;
+        this.itemsNumber = option.itemsNumber || 7;
         this.itemHeight = option.itemHeight || 30;
-        console.log( this.itemHeight )
         this.cols = option.cols || [];
         this.input = document.querySelector(option.input);
         this.container = document.querySelector(option.container);
@@ -134,16 +133,33 @@ Picker.prototype.initPickerCore = function() {
                 selectedCallback: (function() {
                     var _i = i;
                     return function(_new, _old) {
-                        if (!!_this.onChange) _this.onChange(_this.picker, _new, _old);
-                        else if (!!_cols[_i].onChange) _cols[_i].onChange(_this.picker, _new, _old);
+                        if (!!_cols[_i].onChange) _cols[_i].onChange(_this.picker, _new, _old);
+                        else if (!!_this.onChange) _this.onChange(_this.picker, _new, _old);
                         _this.input.innerHTML = _this._getValues();
                     }
                 }())
             };
             if( this.itemsNumber ) option.itemsNumber = this.itemsNumber;
             var _temp = new PickerCore(option);
+            _temp.container = _temp.scrollerComponent;
+            _temp.items = _temp.container.querySelectorAll(".basescroller-item");
+            _temp.value = _temp.currentValue;
+            delete _temp.scrollerComponent;
             _temp.values = _cols[i].values;
-            _temp.replaceValues = _temp.render;
+            _temp.replaceValues = function(values, displayValues){
+                _this._InitCssPickerCore();
+                if( !displayValues ) _temp.render(values);
+                else {
+                    var arr = [];
+                    for(var i=0; i<values.length; i++){
+                        arr.push({
+                            "name": displayValues[i]||values[i],
+                            "value": values
+                        });
+                    }
+                    _temp.render(arr);
+                }
+            };
             this.picker.cols.push(_temp);
             //}
         }
@@ -202,7 +218,7 @@ Picker.prototype._InitCssPickerCore = function() {
             _item[i].style.height = _this.itemHeight + "px";
             _item[i].style.lineHeight = _this.itemHeight + "px";
         }
-    }, 50);
+    }, 100);
 
     // 格式化选项宽度
     // var _componentWidth = 0;
@@ -246,12 +262,12 @@ Picker.prototype._bingEventSetValues = function() {
 Picker.prototype._bindEventToolbar = function() {
     // 设置左右toolbar按钮的事件
     var _this = this;
-    if (this.picker.toolbarLeft) {
-        this.picker.toolbarLeft.click = function(e) {
-            _this.emit('toolbarLeft', e);
-        };
-        this.picker.toolbarLeft.tap(this.picker.toolbarLeft.click);
-    };
+    // if (this.picker.toolbarLeft) {
+    //     this.picker.toolbarLeft.click = function(e) {
+    //         _this.emit('toolbarLeft', e);
+    //     };
+    //     this.picker.toolbarLeft.tap(this.picker.toolbarLeft.click);
+    // };
     if (this.picker.toolbarRight) {
         _this.on('toolbarRight', function(e) {
             _this.hide();
@@ -268,7 +284,6 @@ Picker.prototype._bindEventInput = function(input) {
     // 设置input被触发的事件
     var _this = this;
     input.tap(function() {
-        log('input click');
         _this.show();
         // 如果input被picker遮挡到，则滚动input至可视区域
         (function() {
@@ -278,7 +293,7 @@ Picker.prototype._bindEventInput = function(input) {
             var inputTop = _this.input.offsetTop; // input相对body高度
             var inputHeight = _this.input.offsetHeight; // input高度
             if (inputTop - scrollTop + inputHeight > clientHeight - pickerHeight || inputTop - scrollTop + inputHeight < inputHeight) {
-                _this.scrollAnimate(inputTop - pickerHeight - inputHeight + (clientHeight - pickerHeight), 400)
+                _this.scrollAnimate(inputTop - (clientHeight - pickerHeight)/2, 400);
             }
         }());
     });

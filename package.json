@@ -16,6 +16,9 @@
   "spm": {
     "main": "index.js",
     "dependencies": {
+      "eventor": "~0.0.3",
+      "picker-core": "~1.2.0",
+      "import-style": "~1.0.0"
     },
     "devDependencies": {
       "expect.js": "0.3.1",

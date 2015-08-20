@@ -32,6 +32,7 @@ single = new Picker({
 		}
 	],
     "onChange": function(picker, cur, old){
+        console.log(picker);
         document.querySelector("#JS_single_hint").innerHTML = "上一次的值"+old+",当前的值"+cur;
     },
     "onOpen": function(picker){

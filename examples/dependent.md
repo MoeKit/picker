@@ -41,7 +41,7 @@ pickerDependent = new Picker({
         {
         	textAlign: 'left',
             values: carVendors.Japanese,
-            width: 120
+            width: 130
         },
     ]
 });

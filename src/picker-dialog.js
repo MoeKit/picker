@@ -1,7 +1,7 @@
 'use strict';
 require('./picker-dialog.css');
 var Eventor = require('eventor');
-var SimulateClick = require('./simulate-click.js');
+require('./simulate-click.js')();
 var PickerDialog = function(option){
 	this.outsideClickabled = true;
 	if( isObject(option) ){
@@ -27,14 +27,14 @@ var PickerDialog = function(option){
 	return this;
 }
 Eventor.mixTo(PickerDialog);
-SimulateClick(PickerDialog);
 PickerDialog.prototype._bindEvents = function(){
 	var _this = this;
 	function triggerClick(e){
 		_this.hide();
 		_this.emit('close');
 	}
-	this.setClick(this.mask, triggerClick);
+	this.mask.tap(triggerClick);
+	//this.setClick(this.mask, triggerClick);
 	return this;
 }
 PickerDialog.prototype.show = function(){

@@ -1,62 +1,49 @@
-module.exports = function(Obj) {
-    Obj.prototype.setClick = function(dom, fn) {
-        var touchstart, touchend, target;
-        dom.addEventListener('touchstart', function(e) {
-            this.clickabled = true;
-            e.stopPropagation();
-            touchstart = e.timeStamp;
-            target = e.target;
-        });
-        dom.addEventListener('touchmove', function(e) {
-            this.clickabled = false;
-        });
-        dom.addEventListener('touchend', function(e) {
-            e.stopPropagation();
-            touchend = e.timeStamp;
-            if (touchend - touchstart > 50 && touchend - touchstart < 1000 && this.clickabled) {
-                fn && fn(e);
-            }
-        });
-        // dom.addEventListener('click', function(e) {
-        //  e.stopPropagation();
-        //  if( clickabled ){
-        //      clickabled = false;
-        //      fn && fn(e);
-        //      clickabled = true;
-        //  }
-        // });
-    }
+module.exports = function() {
     HTMLElement.prototype.tap = function(fn) {
-        var touchstart, touchend, target, eStart;
-        if (!!navigator.userAgent.match(/AppleWebKit.*Mobile.*/)) {
-            this.addEventListener('touchstart', function(e) {
+        var _this = this;
+        this.__t = {};
+        this.tevent = {
+            tstart: function(e) {
                 this.clickabled = true;
                 e.stopPropagation();
-                touchstart = e.timeStamp;
-                target = e.target;
-                eStart = e;
-            });
-            this.addEventListener('touchmove', function(e) {
-                if (Math.abs(e.changedTouches[0].pageX - eStart.changedTouches[0].pageX) > 10 || Math.abs(e.changedTouches[0].pageY - eStart.changedTouches[0].pageY) > 10) {
+                _this.__t.start = e.timeStamp;
+                _this.__t.startEvent = e;
+            },
+            tmove: function(e) {
+                if (Math.abs(e.changedTouches[0].pageX - _this.__t.startEvent.changedTouches[0].pageX) > 10 || Math.abs(e.changedTouches[0].pageY - _this.__t.startEvent.changedTouches[0].pageY) > 10) {
                     this.clickabled = false;
                 }
-            });
-            this.addEventListener('touchend', function(e) {
+            },
+            tend: function(e) {
                 e.stopPropagation();
-                touchend = e.timeStamp;
-                if (touchend - touchstart > 30 && touchend - touchstart < 1000 && this.clickabled) {
+                if (e.timeStamp - _this.__t.start > 30 && e.timeStamp - _this.__t.start < 1000 && this.clickabled) {
                     setTimeout(function() {
                         if (!!fn) {
                             fn(e);
                         }
                     }, 0);
                 }
-            });
-        } else {
-            this.addEventListener('click', function(e) {
+            },
+            click: function(e) {
                 e.stopPropagation();
                 fn && fn(e);
-            });
+            }
+        };
+        if (!!navigator.userAgent.match(/AppleWebKit.*Mobile.*/)) {
+            this.addEventListener('touchstart', this.tevent.tstart, false);
+            this.addEventListener('touchmove', this.tevent.tmove, false);
+            this.addEventListener('touchend', this.tevent.tend, false);
+        } else {
+            this.addEventListener('click', this.tevent.click, false);
         }
     };
+    HTMLElement.prototype.untap = function() {
+        if (!!navigator.userAgent.match(/AppleWebKit.*Mobile.*/)) {
+            this.tevent.tstart && this.removeEventListener('touchstart', this.tevent.tstart, false);
+            this.tevent.tmove && this.removeEventListener('touchmove', this.tevent.tmove, false);
+            this.tevent.tend && this.removeEventListener('touchend', this.tevent.tend, false);
+        } else {
+            this.tevent.click && this.removeEventListener('click', this.tevent.click, false);
+        }
+    }
 }

@@ -44,9 +44,10 @@ pickerMitao = new Picker({
                 return arr;
             })(),
             "onChange": function(picker, values){
-                var daysArr = (getDaysArr(picker.cols[0].currentValue, picker.cols[1].currentValue).join("日,")+"日").split(",");
+                var displayDaysArr = (getDaysArr(picker.cols[0].currentValue, picker.cols[1].currentValue).join("日,")+"日").split(",");
+                var daysArr = getDaysArr(picker.cols[0].currentValue, picker.cols[1].currentValue);
                 if( daysArr.length != picker.cols[2].values.length ){
-                    picker.cols[2].replaceValues(daysArr);
+                    picker.cols[2].replaceValues(daysArr, displayDaysArr);
                     picker.cols[2].values = daysArr;
                 } 
             }
@@ -55,9 +56,10 @@ pickerMitao = new Picker({
             values: "1 2 3 4 5 6 7 8 9 10 11 12".split(" "),
             displayValues: ("1 2 3 4 5 6 7 8 9 10 11 12".split(" ").join("月,")+"月").split(","),
             "onChange": function(picker, values){
-                var daysArr = (getDaysArr(picker.cols[0].currentValue, picker.cols[1].currentValue).join("日,")+"日").split(",");
+                var displayDaysArr = (getDaysArr(picker.cols[0].currentValue, picker.cols[1].currentValue).join("日,")+"日").split(",");
+                var daysArr = getDaysArr(picker.cols[0].currentValue, picker.cols[1].currentValue);
                 if( daysArr.length != picker.cols[2].values.length ){
-                    picker.cols[2].replaceValues(daysArr);
+                    picker.cols[2].replaceValues(daysArr, displayDaysArr);
                     picker.cols[2].values = daysArr;
                 } 
             }

@@ -13,6 +13,13 @@ var pickerDate = new Picker(options);
 只支持在wap端使用
 
 ## API
+
+### API设计参考
+picker的api参考淘宝f7的api  
+http://framework7.taobao.org/docs/picker.html#picker-methods-properties  
+而picker中列实例api则基本沿用picker-core的  
+https://github.com/MoeKit/picker-core
+
 ### 实例化选项options
 + input: `String` 用于触发选择器和值显示，input的id，需带#号
 + container: `String` 嵌入页面盒子，盒子id，需带#号 *当此值存在时，对应选择器弹出框各项功能将被取消，如onOpen，onClose*
@@ -75,3 +82,5 @@ var pickerDate = new Picker(options);
 	+ @param value {string|number}
 + selectByIndex(index) 通过索引选择一项
 	+ @param index {number} 非负索引值
+
+## 单元测试@todo

@@ -83,4 +83,4 @@ https://github.com/MoeKit/picker-core
 + selectByIndex(index) 通过索引选择一项
 	+ @param index {number} 非负索引值
 
-## 单元测试@todo
+## 单元测试

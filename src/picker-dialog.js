@@ -3,13 +3,6 @@ require('./picker-dialog.css');
 var Eventor = require('eventor');
 require('./simulate-click.js')();
 var PickerDialog = function(option){
-	this.outsideClickabled = true;
-	if( isObject(option) ){
-		this.outsideClickabled = option.outsideClickabled === false ? false: true;
-	}
-	
-
-	
 	if( !!document.querySelectorAll('.picker-mask').length<=0 ){
 		var divMask = document.createElement('a');
 		divMask.className = 'picker-mask';
@@ -48,8 +41,5 @@ PickerDialog.prototype.hide = function(){
 	_this.mask.classList.remove("show");
 	_this.container.classList.remove("modal-in");
 	return this;
-}
-function isObject(object) {
-	return Object.prototype.toString.call(object) === '[object Object]'
 }
 module.exports =  PickerDialog;

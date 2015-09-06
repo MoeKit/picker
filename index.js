@@ -17,7 +17,6 @@ var Picker = function(option) {
         this.params = {
             "itemsNumber": option.itemsNumber || 7,
             "itemHeight": option.itemHeight || 30,
-            "dialogConf": option.dialogConf || {},
             "cols": option.cols || [],
             "input": option.input || "",
             "toolbarTemplate": option.toolbarTemplate || ('<div class="picker-toolbar">' +
@@ -28,6 +27,7 @@ var Picker = function(option) {
             }
         };
         this.input = document.querySelector(option.input);
+        this.inputSelf = this.input;
         if (!!option.container) {
             this.params.container = option.container || "";
             this.container = document.querySelector(option.container);
@@ -48,13 +48,16 @@ Picker.prototype.isError = function() {
         console.error('input对应的dom对象不存在');
         return true;
     }
+    if( !!this.params.container && !this.container ){
+        console.error('container对应的dom对象不存在');
+        return true;
+    }
     return false;
 };
 Picker.prototype.init = function() {
     this.input.setAttribute('readonly', 'readonly');
     this.input.style.webkitTapHighlightColor = 'rgba(0,0,0,0)';
     this._hackInputFocus();
-
     if (this.container) {
         this.dialog = {};
         this.dialog.container = this.container;
@@ -72,16 +75,14 @@ Picker.prototype.init = function() {
     return this;
 };
 Picker.prototype.destroy = function() {
-    if( (this.container.classList+"").indexOf("modal-in") >0 ) this.dialog.hide();
-    if( !!this.params.container ) this.container.innerHTML = "";
+    if ((this.container.classList + "").indexOf("modal-in") > 0) this.dialog.hide();
+    if (!!this.params.container) this.container.innerHTML = "";
     else this.container.remove();
     this.input.untap();
     this.input.untap();
+    clearTimeout(this.timeout);
     for (var i in this) {
         delete this[i];
-    }
-    for (var i in this.__proto__) {
-        delete this.__proto__[i];
     }
 };
 Picker.prototype.initPicker = function() {
@@ -89,7 +90,7 @@ Picker.prototype.initPicker = function() {
     return this;
 };
 Picker.prototype.initDialog = function() {
-    this.dialog = new PickerDialog(this.params.dialogConf);
+    this.dialog = new PickerDialog();
     //this._wrap = this.dialog.container;
     if (!this.params.container) {
         this.container = this.dialog.container;
@@ -101,7 +102,7 @@ Picker.prototype.close = function() {
     return this.dialog.hide(), this.params.onClose && this.params.onClose(this), this;
 };
 Picker.prototype.open = function() {
-    this.input.innerHTML = this.params.formatValue(this, this._getValues());
+    this.inputSelf.value = this.params.formatValue(this, this._getValues());
     return this.dialog.show(), this.params.onOpen && this.params.onOpen(this), this;
 };
 Picker.prototype.initPickerCore = function() {
@@ -136,7 +137,7 @@ Picker.prototype.initPickerCore = function() {
                     return function(_new, _old) {
                         if (!!_cols[_i].onChange) _cols[_i].onChange(_this, _new, _old);
                         else if (!!_this.params.onChange) _this.params.onChange(_this, _new, _old);
-                        _this.input.innerHTML = _this.params.formatValue(this, _this._getValues());
+                        _this.inputSelf.value = _this.params.formatValue(this, _this._getValues());
                     }
                 }())
             };
@@ -147,7 +148,7 @@ Picker.prototype.initPickerCore = function() {
             _temp.values = _cols[i].values;
             _temp.replaceValues = function(values, displayValues) {
                 _this._InitCssPickerCore();
-                if (!displayValues) _temp.render(values);
+                if (!displayValues) this.render(values);
                 else {
                     var arr = [];
                     for (var i = 0; i < values.length; i++) {
@@ -156,7 +157,7 @@ Picker.prototype.initPickerCore = function() {
                             "value": values[i]
                         });
                     }
-                    _temp.render(arr);
+                    this.render(arr);
                 }
             };
             this.cols.push(_temp);
@@ -177,25 +178,27 @@ Picker.prototype._InitCssPickerCore = function() {
     var _this = this;
     // 设置选择项的width、text-align
     _this._setCssWidth();
-    setTimeout(function() {
-        _this._setCssWidth();
-        _this._wrap.style.height = _this.params.itemsNumber * _this.params.itemHeight + "px";
+    this.timeout = setTimeout(function() {
+        if( !!_this.params ){
+            _this._setCssWidth();
+            _this._wrap.style.height = _this.params.itemsNumber * _this.params.itemHeight + "px";
 
-        var _item = _this._wrap.querySelectorAll(".basescroller-item");
-        var _indicator = _this._wrap.querySelectorAll(".basescroller-current-indicator");
-        var _indicatorAll = _this._wrap.querySelector(".basescroller-current-indicator-all");
-        for (var i = 0; i < _this._component.length; i++) {
-            _this._component[i].style.height = _this.params.itemsNumber * _this.params.itemHeight + "px";
-        }
-        for (var i = 0; i < _indicator.length; i++) {
-            _indicator[i].style.height = _this.params.itemHeight - 2 + "px";
-            _indicator[i].style.top = _this.params.itemHeight * (_this.params.itemsNumber - 1) / 2 + "px";
-        }
-        _indicatorAll.style.top = _this.params.itemHeight * (_this.params.itemsNumber - 1) / 2 + "px";
-        _indicatorAll.style.height = _this.params.itemHeight - 2 + "px";
-        for (var i = 0; i < _item.length; i++) {
-            _item[i].style.height = _this.params.itemHeight + "px";
-            _item[i].style.lineHeight = _this.params.itemHeight + "px";
+            var _item = _this._wrap.querySelectorAll(".basescroller-item");
+            var _indicator = _this._wrap.querySelectorAll(".basescroller-current-indicator");
+            var _indicatorAll = _this._wrap.querySelector(".basescroller-current-indicator-all");
+            for (var i = 0; i < _this._component.length; i++) {
+                _this._component[i].style.height = _this.params.itemsNumber * _this.params.itemHeight + "px";
+            }
+            for (var i = 0; i < _indicator.length; i++) {
+                _indicator[i].style.height = _this.params.itemHeight - 2 + "px";
+                _indicator[i].style.top = _this.params.itemHeight * (_this.params.itemsNumber - 1) / 2 + "px";
+            }
+            _indicatorAll.style.top = _this.params.itemHeight * (_this.params.itemsNumber - 1) / 2 + "px";
+            _indicatorAll.style.height = _this.params.itemHeight - 2 + "px";
+            for (var i = 0; i < _item.length; i++) {
+                _item[i].style.height = _this.params.itemHeight + "px";
+                _item[i].style.lineHeight = _this.params.itemHeight + "px";
+            }
         }
     }, 100);
     return this;

@@ -38,8 +38,8 @@ tookbar = new Picker({
             values: ('Man Luthor Woman Boy Girl Person Cutie Babe Raccoon').split(' ')
         }
     ],
-    onOpen: function(picker){
-        picker.container.querySelector('.picker-toolbar-random').tap(function () {
+    after: function(picker){
+        __tap__( picker.container.querySelector('.picker-toolbar-random'), function () {
             console.log(123);
             var col0Values = picker.cols[0].values;
             var col0Random = col0Values[Math.floor(Math.random() * col0Values.length)];
@@ -51,7 +51,11 @@ tookbar = new Picker({
             var col2Random = col2Values[Math.floor(Math.random() * col2Values.length)];
  
             picker.setValue([col0Random, col1Random, col2Random]);
-        });
+        } );
+    },
+    onOpen: function(picker){
+        
+        
     }
 });
 ````

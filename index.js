@@ -2,7 +2,7 @@
 var Eventor = require('eventor');
 var PickerDialog = require('./src/picker-dialog.js');
 var PickerCore = require('picker-core');
-require('./src/simulate-click.js')();
+var F_tap = require('./src/simulate-click.js');
 require('./src/picker.css');
 
 function getNode(tag, classname, value) {
@@ -13,18 +13,20 @@ function getNode(tag, classname, value) {
 }
 var Picker = function(option) {
     var _this = this;
-    if (isType(option, 'Object')) {
+    if( Object.prototype.toString.call(option) === '[object Object]' ){
         this.params = {
             "itemsNumber": option.itemsNumber || 7,
             "itemHeight": option.itemHeight || 30,
             "cols": option.cols || [],
             "input": option.input || "",
+            "inputContainer": document.querySelector(option.input) || "",
             "toolbarTemplate": option.toolbarTemplate || ('<div class="picker-toolbar">' +
                 '<a href="javascript:void(0);" class="picker-toolbar-right">Done</a>' +
                 '</div>'),
             "formatValue": option.formatValue || function(picker, values) {
                 return values.join(" ");
-            }
+            },
+            "after": option.after
         };
         this.input = document.querySelector(option.input);
         this.inputSelf = this.input;
@@ -57,7 +59,7 @@ Picker.prototype.isError = function() {
 Picker.prototype.init = function() {
     this.input.setAttribute('readonly', 'readonly');
     this.input.style.webkitTapHighlightColor = 'rgba(0,0,0,0)';
-    this._hackInputFocus();
+    // this._hackInputFocus();
     if (this.container) {
         this.dialog = {};
         this.dialog.container = this.container;
@@ -69,8 +71,8 @@ Picker.prototype.init = function() {
         this.initPicker();
         this.initPickerCore();
         this._bindEventToolbar();
-        this._bindEventInput(this.input);
     }
+    this.params.after && this.params.after(this);
     this._getValues();
     return this;
 };
@@ -78,8 +80,8 @@ Picker.prototype.destroy = function() {
     if ((this.container.classList + "").indexOf("modal-in") > 0) this.dialog.hide();
     if (!!this.params.container) this.container.innerHTML = "";
     else this.container.remove();
-    this.input.untap();
-    this.input.untap();
+    // this.input.untap();
+    F_tap.untap( this.input );
     clearTimeout(this.timeout);
     for (var i in this) {
         delete this[i];
@@ -90,7 +92,7 @@ Picker.prototype.initPicker = function() {
     return this;
 };
 Picker.prototype.initDialog = function() {
-    this.dialog = new PickerDialog();
+    this.dialog = new PickerDialog(this.params);
     //this._wrap = this.dialog.container;
     if (!this.params.container) {
         this.container = this.dialog.container;
@@ -232,13 +234,15 @@ Picker.prototype._bindEventToolbar = function() {
         toolbarRight.click = function(e) {
             _this.emit('toolbarRight', e);
         };
-        toolbarRight.tap(toolbarRight.click);
+        F_tap.tap( toolbarRight, toolbarRight.click );
+        // toolbarRight.tap(toolbarRight.click);
     };
 };
-Picker.prototype._bindEventInput = function(input) {
+Picker.prototype._bindEventInput11111 = function() {
     // 设置input被触发的事件
     var _this = this;
-    input.tap(function() {
+    F_tap.untap( this.input );
+    F_tap.tap( this.input, function(){
         _this.open();
         // 如果input被picker遮挡到，则滚动input至可视区域
         (function() {
@@ -251,7 +255,50 @@ Picker.prototype._bindEventInput = function(input) {
                 _this.scrollAnimate(inputTop - (clientHeight - pickerHeight) / 2, 400);
             }
         }());
-    });
+    } );
+    // this.input.untap();
+    // this.input.tap(function() {
+    //     _this.open();
+    //     // 如果input被picker遮挡到，则滚动input至可视区域
+    //     (function() {
+    //         var clientHeight = document.documentElement.clientHeight; //  浏览器高度
+    //         var scrollTop = document.body.scrollTop; // 滚动高度
+    //         var pickerHeight = _this.dialog.container.offsetHeight; // picker高度
+    //         var inputTop = _this.input.offsetTop; // input相对body高度
+    //         var inputHeight = _this.input.offsetHeight; // input高度
+    //         if (inputTop - scrollTop + inputHeight > clientHeight - pickerHeight || inputTop - scrollTop + inputHeight < inputHeight) {
+    //             _this.scrollAnimate(inputTop - (clientHeight - pickerHeight) / 2, 400);
+    //         }
+    //     }());
+    // });
+    F_tap.tap( this.params.inputContainer, function(){
+        _this.open();
+        // 如果input被picker遮挡到，则滚动input至可视区域
+        (function() {
+            var clientHeight = document.documentElement.clientHeight; //  浏览器高度
+            var scrollTop = document.body.scrollTop; // 滚动高度
+            var pickerHeight = _this.dialog.container.offsetHeight; // picker高度
+            var inputTop = _this.input.offsetTop; // input相对body高度
+            var inputHeight = _this.input.offsetHeight; // input高度
+            if (inputTop - scrollTop + inputHeight > clientHeight - pickerHeight || inputTop - scrollTop + inputHeight < inputHeight) {
+                _this.scrollAnimate(inputTop - (clientHeight - pickerHeight) / 2, 400);
+            }
+        }());
+    } );
+    // this.params.inputContainer.tap(function() {
+    //     _this.open();
+    //     // 如果input被picker遮挡到，则滚动input至可视区域
+    //     (function() {
+    //         var clientHeight = document.documentElement.clientHeight; //  浏览器高度
+    //         var scrollTop = document.body.scrollTop; // 滚动高度
+    //         var pickerHeight = _this.dialog.container.offsetHeight; // picker高度
+    //         var inputTop = _this.input.offsetTop; // input相对body高度
+    //         var inputHeight = _this.input.offsetHeight; // input高度
+    //         if (inputTop - scrollTop + inputHeight > clientHeight - pickerHeight || inputTop - scrollTop + inputHeight < inputHeight) {
+    //             _this.scrollAnimate(inputTop - (clientHeight - pickerHeight) / 2, 400);
+    //         }
+    //     }());
+    // });
     return this;
 };
 Picker.prototype._getValues = function() {
@@ -262,38 +309,4 @@ Picker.prototype._getValues = function() {
     this.values = _temp;
     return _temp;
 }
-
-Picker.prototype._hackInputFocus = function() {
-    // 兼容安卓微信，在input上面增加一层遮罩层，安卓微信没法禁用不可编辑
-    var _inputMask = document.createElement('div');
-    var _input = this.input;
-    var _parent = _input.parentNode;
-
-    _inputMask.style.width = (_input.offsetWidth + _input.clientLeft * 2) + 'px';
-    _inputMask.style.height = (_input.offsetHeight + _input.clientTop * 2) + 'px';
-    _inputMask.style.position = 'absolute';
-    _inputMask.style.left = _input.offsetLeft;
-    _inputMask.style.top = _input.offsetTop;
-    _inputMask.setAttribute('id', _input.getAttribute('id') + 'Mask');
-    _parent.insertBefore(_inputMask, _input);
-    this.input = document.getElementById(_input.getAttribute('id') + 'Mask');
-    return this;
-};
-// input输入框如果不在可视区域内，将其滑动到可视区域
-Picker.prototype.scrollAnimate = function(position, timestamp) {
-    var _this = this;
-    var needs = (document.body.scrollTop - position) / timestamp * 25;
-    _this.interval = setInterval(function() {
-        if (Math.abs(document.body.scrollTop - position) < Math.abs(needs)) {
-            clearInterval(_this.interval);
-        }
-        document.body.scrollTop = document.body.scrollTop - needs;
-    }, 8);
-    return this;
-};
-
-
-function isType(object, type) {
-    return Object.prototype.toString.call(object) === '[object ' + type + ']'
-};
 module.exports = Picker;

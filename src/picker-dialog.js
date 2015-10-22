@@ -11,6 +11,8 @@ var PickerDialog = function(option){
             "innerHTML": option.innerHTML || "",
             "onOpen": option.onOpen || function(){},
             "onClose": option.onClose || function(){},
+            "_open": option._open || function(){},
+            "_close": option._close || function(){}
         };
         this.input = document.querySelector(option.input);
 	}
@@ -133,6 +135,7 @@ PickerDialog.prototype.show = function(){
 	var _this = this;
 	_this.mask.classList.add("show");
 	_this.container.classList.add("modal-in");
+    _this.params._open && _this.params._open(this);
 	_this.params.onOpen && _this.params.onOpen(this);
 	return this;
 }
@@ -140,6 +143,7 @@ PickerDialog.prototype.hide = function(){
 	var _this = this;
 	_this.mask.classList.remove("show");
 	_this.container.classList.remove("modal-in");
+    _this.params._close && _this.params._close(this);
 	_this.params.onClose && _this.params.onClose(this);
 	return this;
 }

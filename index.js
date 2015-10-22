@@ -26,7 +26,13 @@ var Picker = function(option) {
             "formatValue": option.formatValue || function(picker, values) {
                 return values.join(" ");
             },
-            "after": option.after
+            "after": option.after,
+            "_open": function(){ // 内部打开事件
+                _this.inputSelf.value = _this.params.formatValue(_this, _this._getValues());
+            },
+            "_close": function(){
+
+            }
         };
         this.input = document.querySelector(option.input);
         this.inputSelf = this.input;
@@ -104,7 +110,7 @@ Picker.prototype.close = function() {
     return this.dialog.hide(), this.params.onClose && this.params.onClose(this), this;
 };
 Picker.prototype.open = function() {
-    this.inputSelf.value = this.params.formatValue(this, this._getValues());
+    // this.inputSelf.value = this.params.formatValue(this, this._getValues());
     return this.dialog.show(), this.params.onOpen && this.params.onOpen(this), this;
 };
 Picker.prototype.initPickerCore = function() {
@@ -163,6 +169,7 @@ Picker.prototype.initPickerCore = function() {
                 }
             };
             this.cols.push(_temp);
+
             //}
         }
     }

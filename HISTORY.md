@@ -20,5 +20,6 @@
 
 ## 0.0.4
 
-`new` 打开picker时自动读取内容到input上
-`new` 新增deom-日期（年月日）
+`new`   打开picker时自动读取内容到input上
+`new`   新增deom-日期（年月日）
+`fixed` 修正input相对body高度

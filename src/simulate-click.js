@@ -19,14 +19,15 @@ var Event = {
             },
             end: function(e) {
                 e.stopPropagation();
+                e.preventDefault();
                 if (e.timeStamp - element.__tap.starttime > 30 && 
                     e.timeStamp - element.__tap.starttime < 300 && 
                     element.__tap.clickabled ) {
-                    //setTimeout(function() {
+                    // setTimeout(function() {
                         if (!!callback) {
                             callback(e);
                         }
-                    //}, 0);
+                    // }, 0);
                 }
             },
             click: function(e) {

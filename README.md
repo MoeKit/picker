@@ -59,6 +59,7 @@ https://github.com/MoeKit/picker-core
 + cols `[Instance]` 每一列的实例(详解请看下面)
 + container `DOM` 存放当前实例的HTML容器
 + value `Array` 选中的值
++ dialog `Instance` 弹出框实例
 
 ### 方法
 + open 显示选择器弹出框
@@ -82,5 +83,16 @@ https://github.com/MoeKit/picker-core
 	+ @param value {string|number}
 + selectByIndex(index) 通过索引选择一项
 	+ @param index {number} 非负索引值
+
+## dialog实例与方法
+
+### 属性
++ params `Object` 实例初始化的参数
++ container `DOM` 存放当前实例的HTML容器
+
+### 方法
++ updateInputPosition `Function` 更新input相对位置
++ show `Function` 显示弹出框
++ hide `Function` 隐藏弹出框
 
 ## 单元测试

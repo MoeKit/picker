@@ -85,7 +85,7 @@ PickerDialog.prototype._bindEventInput = function() {
             var clientHeight = document.documentElement.clientHeight; //  浏览器高度
             var scrollTop = document.body.scrollTop; // 滚动高度
             var pickerHeight = _this.container.offsetHeight; // picker高度
-            var inputTop = _this.input.offsetTop; // input相对body高度
+            var inputTop = _this.input.getBoundingClientRect().top + scrollTop; // input相对body高度
             var inputHeight = _this.input.offsetHeight; // input高度
             if (inputTop - scrollTop + inputHeight > clientHeight - pickerHeight || inputTop - scrollTop + inputHeight < inputHeight) {
                 _this.scrollAnimate(inputTop - (clientHeight - pickerHeight) / 2, 400);

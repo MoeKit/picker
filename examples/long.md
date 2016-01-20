@@ -1,6 +1,6 @@
-# 交互依赖
+# 多列的列项长度过长
 
-- order: 3
+- order: 11
 ---
 
 <style> 
@@ -18,9 +18,9 @@
 var Picker = require('picker');
 
 var carVendors = {
-    Japanese : ['Honda', 'Lexus', 'Mazda', 'Nissan', 'Toyota'],
-    German : ['Audi', 'BMW', 'Mercedes', 'Volkswagen', 'Volvo'],
-    American : ['Cadillac', 'Chrysler', 'Dodge', 'Ford']
+    '广东省广东省广东省广东省' : ['广州市', '韶关市', '深圳市', '珠海市珠海市珠海市珠海市珠海市珠海市', '河源市', '揭阳市'],
+    '新疆维吾尔自治区' : ['阿克苏地区', '昌吉回族自治州', '克孜勒苏柯尔克孜自治州', '伊犁哈萨克自治州', '石河子市', '图木舒克市'],
+    '西藏自治区' : ['日喀则地区', '昌都地区昌都地区昌都地区昌都地区', '林芝地区', '拉萨市']
 };
 pickerDependent = new Picker({
     input: '#JS_dependent',
@@ -31,7 +31,7 @@ pickerDependent = new Picker({
         {
         	width: 110,
             textAlign: 'right',
-            values: ['Japanese', 'German', 'American'],
+            values: ['广东省广东省广东省广东省', '新疆维吾尔自治区', '西藏自治区'],
             "onChange": function(picker, country) {
                 if(picker.cols[1].replaceValues){
                     picker.cols[1].replaceValues(carVendors[country]);
@@ -40,7 +40,7 @@ pickerDependent = new Picker({
         },
         {
         	textAlign: 'left',
-            values: carVendors.Japanese,
+            values: carVendors['广东省广东省广东省广东省'],
             width: 130
         },
     ]

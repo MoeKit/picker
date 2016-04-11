@@ -32,9 +32,9 @@ https://github.com/MoeKit/picker-core
 	+ picker: 当前实例（后面详细说明）
 	+ current 当前选中的值
 	+ prev 之前的值
-+ onOpen: 选择器被打开的回调函数，回调参数有一个: *[optional]*
++ onOpen: (内部dialog实例化参数)选择器被打开的回调函数，回调参数有一个: *[optional]*
 	+ picker: 当前实例（后面详细说明）
-+ onClose: 选择器被关闭的回调函数，回调参数有一个: *[optional]*
++ onClose: (内部dialog实例化参数)选择器被关闭的回调函数，回调参数有一个: *[optional]*
 	+ picker: 当前实例（后面详细说明）
 + toolbarTemplate: 重新定制选择器弹出框顶部的toolbar的html，默认只有右上角有一个done按钮（用于关闭）, 默认html：
 ```html
@@ -60,6 +60,9 @@ https://github.com/MoeKit/picker-core
 + container `DOM` 存放当前实例的HTML容器
 + value `Array` 选中的值
 + dialog `Instance` 弹出框实例
+	+ updateInputPosition `function` 更新input的位置，（input初始化是隐藏时导致位置异常，当设置为显示时需要调用此事件更新input位置）
+	+ show `function` 等同于 picker.open
+	+ hide `function` 等同于 picker.close
 
 ### 方法
 + open 显示选择器弹出框

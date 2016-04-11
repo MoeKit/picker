@@ -107,11 +107,11 @@ Picker.prototype.initDialog = function() {
     return this;
 };
 Picker.prototype.close = function() {
-    return this.dialog.hide(), this.params.onClose && this.params.onClose(this), this;
+    return this.dialog.hide(), this;
 };
 Picker.prototype.open = function() {
     // this.inputSelf.value = this.params.formatValue(this, this._getValues());
-    return this.dialog.show(), this.params.onOpen && this.params.onOpen(this), this;
+    return this.dialog.show(), this;
 };
 Picker.prototype.initPickerCore = function() {
     var _this = this;

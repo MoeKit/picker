@@ -23,3 +23,4 @@
 `new`   打开picker时自动读取内容到input上
 `new`   新增deom-日期（年月日）
 `fixed` 修正input相对body高度
+`fixed` 修正basescroller-scroller的宽度，使之宽度计算正常
